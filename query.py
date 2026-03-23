@@ -178,7 +178,7 @@ def run_rag(
             "retrieved_chunks": [],
             "reranked_chunks": [],
             "context": "",
-            "answer": "没有检索到可用上下文，无法基于本地索引回答这个问题。",
+            "answer": "No relevant context was retrieved from the local index.",
         }
 
     reranked_chunks = rerank_chunks(
