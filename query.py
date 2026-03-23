@@ -163,10 +163,9 @@ def format_generation_error(message: str, exc: Exception) -> str:
 
 
 def run_rag(
+    query_text: str = DEFAULT_QUERY,
     log=None,
 ):
-    query_text = DEFAULT_QUERY
-
     retrieved_chunks = retrieve_chunks(
         query_text=query_text,
         log=log,
@@ -197,6 +196,38 @@ def run_rag(
     }
 
 
+def build_chunk_preview(text: str, limit: int = 100) -> str:
+    normalized = " ".join(text.split())
+    if len(normalized) <= limit:
+        return normalized
+    return f"{normalized[: limit - 3]}..."
+
+
+def print_result_summary(result: dict) -> None:
+    print()
+    print("Demo Output")
+    print(f"Query: {result['query']}")
+    print()
+    print(f"Retrieval results (top {len(result['retrieved_chunks'])} candidates):")
+    for index, chunk in enumerate(result["retrieved_chunks"], start=1):
+        print(
+            f"{index}. {chunk['chunk_id']} | position={chunk['position']} "
+            f"| distance={chunk['distance']:.4f} | {build_chunk_preview(chunk['text'])}"
+        )
+
+    print()
+    print(f"Reranked results (top {len(result['reranked_chunks'])} kept):")
+    for index, chunk in enumerate(result["reranked_chunks"], start=1):
+        print(
+            f"{index}. {chunk['chunk_id']} | position={chunk['position']} "
+            f"| rerank_score={chunk['rerank_score']:.4f} | {build_chunk_preview(chunk['text'])}"
+        )
+
+    print()
+    print("Final answer:")
+    print(result["answer"])
+
+
 def main() -> None:
     load_dotenv()
 
@@ -208,9 +239,7 @@ def main() -> None:
     except RuntimeError as exc:
         raise SystemExit(str(exc)) from None
 
-    print()
-    print("Answer:")
-    print(result["answer"])
+    print_result_summary(result)
 
 
 if __name__ == "__main__":

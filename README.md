@@ -10,6 +10,39 @@ This project is organized around two separate flows:
 Both commands print step-by-step progress so the demo is easy to follow.
 `shared.py` is kept only for the small set of defaults and helper functions reused by both commands.
 
+## Demo Output
+
+`uv run rag-query` prints both the step-by-step process logs and a compact demo summary at the end.
+
+Example:
+
+```text
+Query:
+后羿射下的两颗太阳最终分别转化成了什么形态？
+
+Retrieval results (top 5 candidates):
+1. chunk-0010 | position=10 | distance=0.3526
+2. chunk-0008 | position=8  | distance=0.3575
+3. chunk-0012 | position=12 | distance=0.3959
+4. chunk-0013 | position=13 | distance=0.4110
+5. chunk-0009 | position=9  | distance=0.4490
+
+Reranked results (top 3 kept):
+1. chunk-0010 | position=10 | rerank_score=0.0074
+2. chunk-0013 | position=13 | rerank_score=0.0063
+3. chunk-0009 | position=9  | rerank_score=0.0043
+
+Final answer:
+后羿射下的两颗太阳最终分别转化成了：一颗变成了微型黑洞并迅速蒸发，另一颗被压成了一颗微小、致密的白矮星。
+```
+
+Run it with:
+
+```bash
+uv run rag-prepare
+uv run rag-query
+```
+
 ## Files
 
 ```text
