@@ -12,10 +12,6 @@ Both commands print step-by-step progress so the demo is easy to follow.
 
 ## Demo Output
 
-`uv run rag-query` prints both the step-by-step process logs and a compact demo summary at the end.
-
-Example:
-
 ```text
 Query:
 后羿射下的两颗太阳最终分别转化成了什么形态？
@@ -34,13 +30,6 @@ Reranked results (top 3 kept):
 
 Final answer:
 后羿射下的两颗太阳最终分别转化成了：一颗变成了微型黑洞并迅速蒸发，另一颗被压成了一颗微小、致密的白矮星。
-```
-
-Run it with:
-
-```bash
-uv run rag-prepare
-uv run rag-query
 ```
 
 ## Files
@@ -75,29 +64,57 @@ uv run rag-prepare
 
 # Step 2: query the prepared index
 uv run rag-query
+
+# Ask a custom question
+uv run rag-query --query "your question"
 ```
 
-`rag-query` uses the built-in demo question defined in the code.
+`rag-query` uses the built-in demo question by default.
 
-## Flow overview
+## Architecture and Flow
 
-### `uv run rag-prepare`
+The project is split into two commands plus one shared utility module:
 
-The prepare flow prints these steps:
+- `prepare.py`: reads the source document, splits it into chunks, generates local embeddings, and rebuilds the local Chroma index.
+- `query.py`: embeds the question, retrieves and reranks chunks, assembles context, and generates the final answer.
+- `shared.py`: stores the small set of defaults and helper functions shared by both commands.
 
-1. Load the source document.
-2. Split the document into chunks.
-3. Generate SentenceTransformer embeddings for every chunk.
-4. Rebuild the local Chroma collection.
-5. Persist the chunks into the local index.
+```mermaid
+flowchart LR
+    subgraph A["Data"]
+        direction TB
+        A1["Source document"]
+    end
 
-### `uv run rag-query`
+    subgraph B["Index Build (Offline)"]
+        direction TB
+        B1["uv run rag-prepare"]
+        B2["Load and clean document"]
+        B3["Chunking"]
+        B4["Embedding"]
+        B5["Persist Chroma collection"]
+        B1 --> B2 --> B3 --> B4 --> B5
+    end
 
-The query flow prints these steps:
+    subgraph C["Search (Online)"]
+        direction TB
+        C1["uv run rag-query"]
+        C2["Question embedding"]
+        C3["Retrieve top chunks"]
+        C4["Rerank results"]
+        C5["Build final context"]
+        C1 --> C2 --> C3 --> C4 --> C5
+    end
 
-1. Open the local index.
-2. Embed the user question with SentenceTransformer.
-3. Retrieve candidate chunks.
-4. Rerank the retrieved chunks with CrossEncoder.
-5. Build the final context.
-6. Generate the final answer.
+    subgraph D["Answer Generation (Online)"]
+        direction TB
+        D1["Prompt assembly"]
+        D2["OpenAI answer generation"]
+        D3["Final answer"]
+        D1 --> D2 --> D3
+    end
+
+    A --> B
+    B --> C
+    C --> D
+```
