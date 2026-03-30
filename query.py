@@ -1,3 +1,5 @@
+import argparse
+
 import openai
 from dotenv import load_dotenv
 
@@ -228,14 +230,21 @@ def print_result_summary(result: dict) -> None:
     print(result["answer"])
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Query the local RAG demo index.")
+    parser.add_argument("--query", default=DEFAULT_QUERY)
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     load_dotenv()
 
     def log(message: str) -> None:
         print(message)
 
     try:
-        result = run_rag(log=log)
+        result = run_rag(query_text=args.query, log=log)
     except RuntimeError as exc:
         raise SystemExit(str(exc)) from None
 
