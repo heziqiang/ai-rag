@@ -25,7 +25,7 @@ def log_step(log, title: str, detail: str | None = None) -> None:
 def create_openai_client() -> OpenAI:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("Missing required environment variable: OPENAI_API_KEY")
+        raise ValueError("Missing OPENAI_API_KEY. Set it in .env before running rag-query.")
 
     base_url = os.getenv("OPENAI_BASE_URL")
     if base_url:
@@ -103,9 +103,7 @@ def recreate_collection(chroma_path: Path | str, collection_name: str):
 
 def get_collection(chroma_path: Path | str, collection_name: str):
     if not collection_exists(chroma_path, collection_name):
-        raise ValueError(
-            f"Chroma collection '{collection_name}' was not found. Run rag-prepare first."
-        )
+        raise ValueError("Local index not found. Run rag-prepare first.")
 
     client = open_chroma_client(chroma_path)
     return client.get_collection(collection_name, embedding_function=None)

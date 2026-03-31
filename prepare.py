@@ -79,7 +79,11 @@ def main() -> None:
     def log(message: str) -> None:
         print(message)
 
-    result = build_index(log=log)
+    try:
+        result = build_index(log=log)
+    except (RuntimeError, ValueError, FileNotFoundError) as exc:
+        raise SystemExit(str(exc)) from None
+
     print()
     print("Prepare complete.")
     print(f"Document: {result['document_path']}")

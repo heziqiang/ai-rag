@@ -245,7 +245,7 @@ def main() -> None:
 
     try:
         result = run_rag(query_text=args.query, log=log)
-    except RuntimeError as exc:
+    except (RuntimeError, ValueError, FileNotFoundError) as exc:
         raise SystemExit(str(exc)) from None
 
     print_result_summary(result)
