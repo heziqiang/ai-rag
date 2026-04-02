@@ -113,11 +113,12 @@ def rerank_chunks(
 
 def build_context(chunks, log=None) -> str:
     log_step(log, "Step 5/6 Build the answer context")
+    ordered_chunks = sorted(chunks, key=lambda chunk: chunk["position"])
     context = "\n\n".join(
         f"[Chunk {index}] position={chunk['position']}\n{chunk['text']}"
-        for index, chunk in enumerate(chunks, start=1)
+        for index, chunk in enumerate(ordered_chunks, start=1)
     )
-    log_step(log, "Context summary", f"{len(chunks)} chunks assembled")
+    log_step(log, "Context summary", f"{len(ordered_chunks)} chunks assembled")
     return context
 
 
